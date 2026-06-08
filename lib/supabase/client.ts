@@ -1,0 +1,14 @@
+import { createBrowserClient } from "@supabase/ssr";
+
+export function createClient() {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+  if (!url || !key) {
+    throw new Error(
+      "Missing Supabase environment variables. Check your .env.local file."
+    );
+  }
+
+  return createBrowserClient(url, key);
+}

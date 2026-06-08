@@ -1,0 +1,3 @@
+{
+  "customInstructions": "This project uses Next.js 16 App Router, TypeScript, Tailwind CSS, shadcn/ui, and Supabase. Follow the existing code style. Always run `npm run build` after making changes to verify there are no TypeScript errors."
+}
