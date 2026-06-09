@@ -15,7 +15,7 @@ export function LoglineCard({ logline }: LoglineCardProps) {
   });
 
   return (
-    <a href={`/p/${logline.id}`} className="group block">
+    <a href={`/p/${encodeURIComponent(logline.id)}`} className="group block">
       <article className="relative rounded-xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-0.5 hover:border-border">
         <div className="flex items-start justify-between gap-4">
           <p className="text-2xl font-semibold leading-relaxed text-foreground group-hover:text-primary transition-colors">

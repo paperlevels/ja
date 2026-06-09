@@ -106,7 +106,7 @@ export default function AdminDashboard({ loglines: initialLoglines, comments: in
                   <TableRow key={logline.id} className="border-border/40">
                     <TableCell className="font-medium text-sm">
                       <a
-                        href={`/p/${logline.id}`}
+                        href={`/p/${encodeURIComponent(logline.id)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-foreground hover:text-primary transition-colors hover:underline"
@@ -197,7 +197,7 @@ export default function AdminDashboard({ loglines: initialLoglines, comments: in
                     </TableCell>
                     <TableCell>
                       <a
-                        href={`/p/${comment.logline_id}`}
+                        href={`/p/${encodeURIComponent(comment.logline_id)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-foreground hover:text-primary transition-colors hover:underline text-sm"

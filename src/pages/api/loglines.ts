@@ -1,28 +1,58 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase/server";
 
+const FORBIDDEN_CHARS = /[\/\\?&\#%\n\r\t]/;
+
+function validateContent(content: string): string | null {
+  const trimmed = content.trim();
+  if (!trimmed || trimmed.length === 0 || trimmed.length > 140) {
+    return "ログラインは1〜140文字で入力してください";
+  }
+  if (FORBIDDEN_CHARS.test(trimmed)) {
+    return "URLに使用される文字（/ ? & # % \\ など）は使用できません";
+  }
+  return null;
+}
+
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const formData = await request.formData();
     const content = formData.get("content") as string;
 
-    if (!content || content.trim().length === 0 || content.trim().length > 140) {
+    const validationError = validateContent(content);
+    if (validationError) {
       return new Response(
-        JSON.stringify({ error: "ログラインは1〜140文字で入力してください" }),
+        JSON.stringify({ error: validationError }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    const trimmed = content.trim();
     const supabase = createClient(request, {
       get: (name) => cookies.get(name)?.value,
       set: (name, value, options) => cookies.set(name, value, options),
       delete: (name, options) => cookies.delete(name, options),
     });
 
+    // duplicate check
+    const { data: existing } = await supabase
+      .schema("public")
+      .from("loglines")
+      .select("id")
+      .eq("content", trimmed)
+      .single();
+
+    if (existing) {
+      return new Response(
+        JSON.stringify({ error: "同じ内容は既に投稿されています" }),
+        { status: 409, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const { data, error } = await supabase
       .schema("public")
       .from("loglines")
-      .insert({ content: content.trim() })
+      .insert({ id: trimmed, content: trimmed })
       .select()
       .single();
 

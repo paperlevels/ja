@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import {
   PUBLIC_SUPABASE_URL,
   PUBLIC_SUPABASE_ANON_KEY,
-} from "astro:env/server";
+} from "astro:env/client";
 
 const url = (PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
 const key = PUBLIC_SUPABASE_ANON_KEY || "";

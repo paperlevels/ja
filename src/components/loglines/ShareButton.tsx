@@ -23,7 +23,7 @@ export function ShareButton({ id, content, initialCount }: ShareButtonProps) {
     }
     setLastClicked(now);
 
-    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/p/${id}`;
+    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/p/${encodeURIComponent(id)}`;
     const text = `「${content}」 — このアイデア、需要ある？ #Paperlevels`;
     const shareData = { title: "Paperlevels", text, url };
 

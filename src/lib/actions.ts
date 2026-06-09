@@ -4,18 +4,45 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+const FORBIDDEN_CHARS = /[\/\\?&\#%\n\r\t]/;
+
+function validateLoglineContent(content: string): string | null {
+  const trimmed = content.trim();
+  if (!trimmed || trimmed.length === 0 || trimmed.length > 140) {
+    return "ログラインは1〜140文字で入力してください";
+  }
+  if (FORBIDDEN_CHARS.test(trimmed)) {
+    return "URLに使用される文字（/ ? & # % \\ など）は使用できません";
+  }
+  return null;
+}
+
 export async function createLogline(formData: FormData) {
   const content = formData.get("content") as string;
 
-  if (!content || content.trim().length === 0 || content.trim().length > 140) {
-    return { error: "ログラインは1〜140文字で入力してください" };
+  const validationError = validateLoglineContent(content);
+  if (validationError) {
+    return { error: validationError };
   }
 
+  const trimmed = content.trim();
   const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .schema("public")
+    .from("loglines")
+    .select("id")
+    .eq("content", trimmed)
+    .single();
+
+  if (existing) {
+    return { error: "同じ内容は既に投稿されています" };
+  }
+
   const { data, error } = await supabase
     .schema("public")
     .from("loglines")
-    .insert({ content: content.trim() })
+    .insert({ id: trimmed, content: trimmed })
     .select()
     .single();
 

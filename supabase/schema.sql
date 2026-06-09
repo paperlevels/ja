@@ -1,13 +1,19 @@
 -- Paperlevels Database Schema
 -- Compatible with Supabase PostgreSQL
+-- 注意: 既存のテーブル・データはすべて削除されます
 
 -- Enable pg_trgm for text search
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
+-- Clean up existing tables (triggers are removed automatically via CASCADE)
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS loglines CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column();
+
 -- loglines table
-CREATE TABLE IF NOT EXISTS loglines (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  content TEXT NOT NULL CHECK (char_length(content) >= 1 AND char_length(content) <= 140),
+CREATE TABLE loglines (
+  id TEXT PRIMARY KEY,
+  content TEXT NOT NULL UNIQUE CHECK (char_length(content) >= 1 AND char_length(content) <= 140),
   category VARCHAR(50) NULL,
   share_count INTEGER NOT NULL DEFAULT 0,
   comment_count INTEGER NOT NULL DEFAULT 0,
@@ -16,21 +22,21 @@ CREATE TABLE IF NOT EXISTS loglines (
 );
 
 -- comments table
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  logline_id UUID NOT NULL REFERENCES loglines(id) ON DELETE CASCADE,
+  logline_id TEXT NOT NULL REFERENCES loglines(id) ON DELETE CASCADE,
   content TEXT NOT NULL CHECK (char_length(content) >= 1 AND char_length(content) <= 5000),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Indexes for loglines
-CREATE INDEX IF NOT EXISTS idx_loglines_created_at ON loglines(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_loglines_share_count ON loglines(share_count DESC);
-CREATE INDEX IF NOT EXISTS idx_loglines_content_trgm ON loglines USING gin (content gin_trgm_ops);
+CREATE INDEX idx_loglines_created_at ON loglines(created_at DESC);
+CREATE INDEX idx_loglines_share_count ON loglines(share_count DESC);
+CREATE INDEX idx_loglines_content_trgm ON loglines USING gin (content gin_trgm_ops);
 
 -- Indexes for comments
-CREATE INDEX IF NOT EXISTS idx_comments_logline_id ON comments(logline_id);
-CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);
+CREATE INDEX idx_comments_logline_id ON comments(logline_id);
+CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
 
 -- Trigger to update updated_at on loglines
 CREATE OR REPLACE FUNCTION update_updated_at_column()
