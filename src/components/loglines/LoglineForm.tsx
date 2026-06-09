@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -27,7 +27,11 @@ interface LoglineFormProps {
 export function LoglineForm({ onSuccess }: LoglineFormProps) {
   const [content, setContent] = useState("");
   const [pending, setPending] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   async function handleSubmit(formData: FormData) {
     setPending(true);
@@ -58,8 +62,8 @@ export function LoglineForm({ onSuccess }: LoglineFormProps) {
 
   return (
     <form
-      ref={formRef}
       action={handleSubmit}
+      data-hydrated={hydrated ? "true" : "false"}
       className="rounded-xl border border-border/60 bg-card p-5 shadow-sm"
     >
       <Textarea
@@ -67,6 +71,7 @@ export function LoglineForm({ onSuccess }: LoglineFormProps) {
         placeholder="サイトの目的を1行で表現..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        onInput={(e) => setContent(e.currentTarget.value)}
         rows={3}
         maxLength={140}
         required

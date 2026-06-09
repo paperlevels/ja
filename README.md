@@ -81,6 +81,42 @@ npm run dev
 
 ブラウザで [http://localhost:4321](http://localhost:4321) を開きます。
 
+## テストの実行
+
+このプロジェクトでは、Vitest で API / DB / データ層のテストを、Playwright で E2E テストを実行します。
+
+### Unit / Integration テスト
+
+```bash
+npm run test
+```
+
+UI で確認したい場合:
+
+```bash
+npm run test:ui
+```
+
+個別に実行する場合の例:
+
+```bash
+npm exec vitest run tests/api/loglines.test.ts
+```
+
+### E2E テスト
+
+```bash
+npm run test:e2e
+```
+
+特定ファイルだけ実行する場合の例:
+
+```bash
+npx playwright test e2e/post-logline.spec.ts
+```
+
+> 注意: API / DB / 一部の E2E テストは Supabase の接続情報が必要です。`.env.local` を用意してから実行してください。
+
 ---
 
 ## Admin Setup（管理画面のログイン設定）

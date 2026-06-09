@@ -152,3 +152,45 @@ npm install -D vitest @vitest/ui playwright @playwright/test jsdom @testing-libr
 2. **DB/RLSテスト**（`tests/db/`）— セキュリティ担保のため優先
 3. **データ層テスト**（`tests/lib/`）— 並行して実装可能
 4. **E2Eテスト**（`e2e/`）— UIフロー確定後に実装
+
+---
+
+## 8. 実装進捗
+
+### 完了
+
+- `tests/api/loglines.test.ts`
+- `tests/api/comments.test.ts`
+- `tests/api/share.test.ts`
+- `tests/api/admin.test.ts`
+- `tests/lib/data.test.ts`
+- `tests/db/rls.test.ts`
+- `tests/db/schema.test.ts`
+- `e2e/post-logline.spec.ts`
+- `e2e/comment.spec.ts`
+- `e2e/search.spec.ts`
+- `e2e/sort.spec.ts`
+- `e2e/share.spec.ts`
+- `e2e/admin.spec.ts`
+- `vitest.config.ts`
+- `playwright.config.ts`
+- `tests/setup.ts`
+- `tests/helpers.ts`
+
+### 反映済みの調整
+
+- `src/pages/api/share.ts` は RLS と干渉しないよう管理者権限で `share_count` を更新するよう修正済み
+- `vitest.config.ts` で `e2e/` を除外し、Vitest が Playwright テストを誤検出しないよう修正済み
+- `package.json` に `test` / `test:ui` / `test:e2e` を追加済み
+- `e2e/debug-fill.spec.ts` はデバッグ用のため `test.skip()` に変更済み
+- E2E の hydration 待ちと入力方法を整理し、`post-logline` / `sort` の不安定さを解消済み
+
+### 確認結果
+
+- `npm exec vitest run --reporter=basic` は全件パス済み
+- `npx playwright test --project=chromium` は 7 件パス、2 件スキップで通過済み
+- `npx playwright test --list` で E2E テスト 9 件を認識済み
+
+### 残作業
+
+- `debug-fill.spec.ts` は調査用テストなので、不要なら削除または専用の診断コマンドへ移行してもよい
