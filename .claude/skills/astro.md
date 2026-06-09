@@ -16,5 +16,5 @@ This project uses Astro 6 with the Cloudflare Workers adapter.
 - Environment variables must use the `PUBLIC_` prefix to be exposed to the client; access them via `import.meta.env.PUBLIC_*`
 - The Cloudflare Workers adapter requires `output: "server"` in `astro.config.mjs`
 - `@base-ui/react` and `@supabase/*` packages must be listed in `vite.ssr.noExternal` to be bundled for SSR
-- The `proxy.ts` file (previously `middleware.ts`) is not used in Astro; session handling is done directly in pages or API routes
+- Session handling is implemented in `src/lib/supabase/server.ts` and the API routes; keep cookie reads and writes aligned with the existing helper wrappers
 - Build outputs go to `dist/` (server entry at `dist/server/entry.mjs`)

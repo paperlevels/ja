@@ -6,4 +6,4 @@ Run the production build to check for TypeScript errors and compilation issues.
 npm run build
 ```
 
-Always run this after making changes to verify the code compiles correctly.
+Use this as the final verification step after code changes.

@@ -1,3 +1,0 @@
-{
-  "customInstructions": "This project uses Astro 6, TypeScript, Tailwind CSS v4, shadcn/ui, Supabase, and Cloudflare Workers. Follow the existing code style."
-}
