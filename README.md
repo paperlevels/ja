@@ -134,21 +134,41 @@ npx playwright test e2e/post-logline.spec.ts
 
 ---
 
-## Deploy to Cloudflare Workers
+## Cloudflare へのデプロイと Supabase 接続
 
-### ビルド
+このプロジェクトは Cloudflare Workers（または Pages）にデプロイし、Supabase と連携して動作します。
 
-```bash
-npm run build
+### 必要な環境変数
+
+Supabase への接続には以下の 3 つの環境変数が必要です。
+
+| 変数名 | 用途 | 公開/秘密 |
+|--------|------|-----------|
+| `PUBLIC_SUPABASE_URL` | Supabase プロジェクトの URL | 公開（`PUBLIC_` プレフィックス必須） |
+| `PUBLIC_SUPABASE_ANON_KEY` | クライアントサイド・サーバーサイド両方で使用 | 公開（`PUBLIC_` プレフィックス必須） |
+| `SUPABASE_SERVICE_ROLE_KEY` | 管理 API などサーバーサイド専用 | **秘密** |
+
+> **注意**: `SUPABASE_SERVICE_ROLE_KEY` は強力な権限を持つため、絶対にクライアントサイドに公開しないでください。
+
+### Astro の env スキーマ
+
+`astro.config.mjs` で以下のように環境変数スキーマが定義されています。Astro はビルド時にこれらの変数を検証し、`astro:env/client` および `astro:env/server` から型安全に読み込めます。
+
+```js
+env: {
+  schema: {
+    PUBLIC_SUPABASE_URL: envField.string({ context: "client", access: "public" }),
+    PUBLIC_SUPABASE_ANON_KEY: envField.string({ context: "client", access: "public" }),
+    SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: "server", access: "secret" }),
+  },
+},
 ```
 
-### 環境変数の設定
+### 1. Cloudflare Workers にデプロイする場合
 
-Cloudflare Workers では `.env.local` は使用できません。以下の方法で環境変数を設定してください。
+#### 公開環境変数の設定
 
-#### 公開環境変数（クライアントサイドでも使用）
-
-`wrangler.toml` の `[vars]` セクションに記載するか、ダッシュボードから設定:
+`wrangler.toml` の `[vars]` セクションに公開環境変数を記述します。
 
 ```toml
 [vars]
@@ -156,16 +176,74 @@ PUBLIC_SUPABASE_URL = "https://xxxxxx.supabase.co"
 PUBLIC_SUPABASE_ANON_KEY = "eyJ..."
 ```
 
-#### 機密情報（サーバーサイドのみ）
+#### 機密情報の設定
+
+`SUPABASE_SERVICE_ROLE_KEY` は `wrangler secret` コマンドで設定します。
 
 ```bash
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 ```
 
-### デプロイ
+#### ビルドとデプロイ
 
 ```bash
+npm run build
 npx wrangler deploy
+```
+
+### 2. Cloudflare Pages にデプロイする場合
+
+#### 方法 A: Pages ダッシュボードから設定
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com) で Pages プロジェクトを選択
+2. **「Settings」** → **「Environment variables」** を開く
+3. 以下の環境変数を追加します
+   - `PUBLIC_SUPABASE_URL`
+   - `PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+4. **Production** 環境と **Preview** 環境の両方に設定してください
+
+#### 方法 B: `wrangler.toml` を使用
+
+Workers と同様に `wrangler.toml` で `[vars]` に公開変数を設定し、以下のコマンドで秘密情報を登録することもできます。
+
+```bash
+npx wrangler pages secret put SUPABASE_SERVICE_ROLE_KEY
+```
+
+#### ビルドとデプロイ
+
+```bash
+npm run build
+# dist/ ディレクトリをデプロイ
+npx wrangler pages deploy dist/
+```
+
+### Supabase クライアントの初期化
+
+このプロジェクトでは以下のように環境変数を通じて Supabase クライアントを初期化しています。
+
+#### ブラウザ（クライアントサイド）
+
+```typescript
+import { createBrowserClient } from "@supabase/ssr";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "astro:env/client";
+
+export function createClient() {
+  return createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+}
+```
+
+#### サーバーサイド（Admin）
+
+```typescript
+import { createClient } from "@supabase/supabase-js";
+import { PUBLIC_SUPABASE_URL } from "astro:env/client";
+import { SUPABASE_SERVICE_ROLE_KEY } from "astro:env/server";
+
+export function createAdminClient() {
+  return createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+}
 ```
 
 ---
