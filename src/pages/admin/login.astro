@@ -1,0 +1,10 @@
+---
+export const prerender = false;
+import Layout from "@/layouts/Layout.astro";
+import AdminLoginForm from "@/components/admin/AdminLoginForm";
+---
+export const prerender = false;
+
+<Layout title="管理者ログイン - Paperlevels">
+  <AdminLoginForm client:load />
+</Layout>

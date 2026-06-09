@@ -1,0 +1,38 @@
+diff --git a/node_modules/@cloudflare/vite-plugin/dist/index.mjs b/node_modules/@cloudflare/vite-plugin/dist/index.mjs
+index 05f7fd4..58590e7 100644
+--- a/node_modules/@cloudflare/vite-plugin/dist/index.mjs
++++ b/node_modules/@cloudflare/vite-plugin/dist/index.mjs
+@@ -51300,6 +51300,10 @@ var CloudflareDevEnvironment = class extends vite.DevEnvironment {
+ 		});
+ 		this.#webSocketContainer = webSocketContainer;
+ 	}
++	async listen() {
++		if (!this.#webSocketContainer.webSocket) return;
++		return super.listen();
++	}
+ 	async initRunner(miniflare, workerConfig, options) {
+ 		const response = await miniflare.dispatchFetch(new URL(INIT_PATH, UNKNOWN_HOST), { headers: {
+ 			[CoreHeaders.ROUTE_OVERRIDE]: workerConfig.name,
+@@ -51383,12 +51387,12 @@ function createCloudflareEnvironmentOptions({ workerConfig, userConfig, mode, en
+ 			manifest: isEntryWorker,
+ 			outDir: getOutputDirectory(userConfig, environmentName),
+ 			copyPublicDir: false,
+-			ssr: true,
++			rollupOptions,
+ 			...isRolldown ? { rolldownOptions: {
+ 				...rollupOptions,
+ 				platform: "neutral",
+ 				resolve: { extensions: resolveExtensions }
+-			} } : { rollupOptions }
++			} } : {}
+ 		},
+ 		optimizeDeps: {
+ 			noDiscovery: false,
+@@ -56168,6 +56172,7 @@ const devPlugin = createPlugin("dev", (ctx) => {
+ 		},
+ 		async configureServer(viteDevServer) {
+ 			assertIsNotPreview(ctx);
++			if (viteDevServer.config.server.ws === false || viteDevServer.config.server.hmr === false) return;
+ 			const initialOptions = await getDevMiniflareOptions(ctx, viteDevServer);
+ 			let containerTagToOptionsMap = initialOptions.containerTagToOptionsMap;
+ 			await ctx.startOrUpdateMiniflare(initialOptions.miniflareOptions);

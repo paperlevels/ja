@@ -4,11 +4,12 @@
 
 ## Tech Stack
 
-- Next.js 15 (App Router)
+- Astro 6
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS v4
 - shadcn/ui
 - Supabase (PostgreSQL + Auth)
+- Cloudflare Workers（デプロイ先）
 
 ## Getting Started
 
@@ -41,12 +42,12 @@
 
 1. Supabase Dashboard の左メニューから **「Settings」**（歯車アイコン）を開く
 2. サイドメニューから **「Data API」** を選択
-3. **「Project URL」** の値をコピー（`NEXT_PUBLIC_SUPABASE_URL`）
+3. **「Project URL」** の値をコピー（`PUBLIC_SUPABASE_URL`）
 
 #### 3b. API Keys（Anon Key / Service Role Key）を取得
 
 1. 同じ **「Settings」** メニュー内で **「API Keys」** を選択
-2. **`anon` `public`** の値をコピー（`NEXT_PUBLIC_SUPABASE_ANON_KEY`）
+2. **`anon` `public`** の値をコピー（`PUBLIC_SUPABASE_ANON_KEY`）
 3. 同じページ内で **`service_role` `secret`** の値をコピー（`SUPABASE_SERVICE_ROLE_KEY`）
 
 > **注意**: `service_role` キーは強力な権限を持つため、絶対に公開しないでください。
@@ -58,8 +59,8 @@
 ```bash
 # ターミナルで以下を実行（値は各自のものに置き換えてください）
 cat > .env.local << 'EOF'
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+PUBLIC_SUPABASE_URL=https://xxxxxx.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 EOF
 ```
@@ -78,7 +79,7 @@ npm install
 npm run dev
 ```
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
+ブラウザで [http://localhost:4321](http://localhost:4321) を開きます。
 
 ---
 
@@ -91,9 +92,45 @@ npm run dev
 3. **「Add user」** または **「Invite」** をクリック
 4. メールアドレスとパスワードを入力してユーザーを作成
    - 例: Email: `admin@example.com`, Password: 任意のパスワード
-5. 作成したメールアドレスとパスワードで、[http://localhost:3000/admin](http://localhost:3000/admin) からログイン
+5. 作成したメールアドレスとパスワードで、[http://localhost:4321/admin](http://localhost:4321/admin) からログイン
 
 > **補足**: 現状は一般ユーザー登録フォームは設置していません。必要に応じて Supabase Dashboard から手動でユーザーを追加してください。
+
+---
+
+## Deploy to Cloudflare Workers
+
+### ビルド
+
+```bash
+npm run build
+```
+
+### 環境変数の設定
+
+Cloudflare Workers では `.env.local` は使用できません。以下の方法で環境変数を設定してください。
+
+#### 公開環境変数（クライアントサイドでも使用）
+
+`wrangler.toml` の `[vars]` セクションに記載するか、ダッシュボードから設定:
+
+```toml
+[vars]
+PUBLIC_SUPABASE_URL = "https://xxxxxx.supabase.co"
+PUBLIC_SUPABASE_ANON_KEY = "eyJ..."
+```
+
+#### 機密情報（サーバーサイドのみ）
+
+```bash
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+```
+
+### デプロイ
+
+```bash
+npx wrangler deploy
+```
 
 ---
 

@@ -1,0 +1,55 @@
+---
+export const prerender = false;
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import AdminDashboard from "@/components/admin/AdminDashboard";
+
+const supabase = createClient(Astro.request, {
+  get: (name) => Astro.cookies.get(name)?.value,
+  set: (name, value, options) => Astro.cookies.set(name, value, options),
+  delete: (name, options) => Astro.cookies.delete(name, options),
+});
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect("/admin/login");
+}
+
+const adminClient = createAdminClient();
+
+const { data: loglines, error: loglinesError } = await adminClient
+  .from("loglines")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+const { data: comments, error: commentsError } = await adminClient
+  .from("comments")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+if (loglinesError) console.error("Error fetching loglines:", loglinesError);
+if (commentsError) console.error("Error fetching comments:", commentsError);
+---
+export const prerender = false;
+
+<Layout title="管理画面 - Paperlevels">
+  <div class="mx-auto max-w-5xl px-4 py-8 md:py-12">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold tracking-tight text-foreground">
+        管理画面
+      </h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        ログラインとコメントの管理
+      </p>
+    </div>
+    <AdminDashboard
+      loglines={loglines || []}
+      comments={comments || []}
+      client:load
+    />
+  </div>
+</Layout>
