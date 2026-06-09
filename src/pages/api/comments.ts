@@ -26,13 +26,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       delete: (name, options) => cookies.delete(name, options),
     });
 
-    const { error } = await supabase
+    const { data: comment, error } = await supabase
       .schema("public")
       .from("comments")
       .insert({
         logline_id: loglineId,
         content: content.trim(),
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("Error creating comment:", error);
@@ -58,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, comment }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {

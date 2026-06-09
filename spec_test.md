@@ -1,91 +1,148 @@
-# Supabase テスト仕様
+# Paperlevels テスト仕様書
 
-## 1. 方針
+> 対象環境: ローカル Supabase（自由な CRUD 操作が可能な状態）
 
-Supabase のテストは以下の 3 レイヤーに分けて実施する。
+---
 
-| レイヤー | 対象 | 目的 | 推奨ツール |
-|---------|------|------|-----------|
-| Database | RLS ポリシー、関数、トリガー | データアクセス制御と DB ロジックの検証 | `supabase test db` (pgTAP) |
-| API / Integration | Client 経由の CRUD、認証付き操作 | 実際の API 呼び出しとレスポンスの検証 | `vitest` + `@supabase/supabase-js` |
-| E2E | 画面操作 → DB 反映 | ユーザーフロー全体の検証 | `Playwright` |
+## 1. 導入パッケージ
 
-## 2. 環境
-
-- **ローカル / CI 共用**: Supabase CLI の Docker 環境 (`supabase start`) を使用し、本番とは完全に分離する。
-- **初期化**: 各テスト実行前に `supabase db reset` を行い、スキーマと seed データを同じ状態に戻す。
-
-## 3. 必須テスト項目
-
-### 3.1 RLS ポリシー（最重要）
-
-Supabase の安全性は RLS に依存するため、以下のパターンを必ず網羅する。
-
-```typescript
-// 例: 匿名ユーザーは投稿できない
-test('匿名ユーザーは loglines に insert できない', async () => {
-  const { error } = await anonClient.from('loglines').insert({ title: 'test' });
-  expect(error).not.toBeNull();
-});
-
-// 例: 一般ユーザーは自分の投稿のみ更新できる
-test('一般ユーザーは他人の投稿を更新できない', async () => {
-  const { error } = await userAClient
-    .from('loglines')
-    .update({ title: 'hacked' })
-    .eq('id', userBLoglineId);
-  expect(error).not.toBeNull();
-});
-
-// 例: 管理者のみが削除できる
-test('一般ユーザーは delete できない', async () => {
-  const { error } = await userClient.from('loglines').delete().eq('id', 1);
-  expect(error).not.toBeNull();
-});
+```bash
+npm install -D vitest @vitest/ui playwright @playwright/test jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event
 ```
 
-### 3.2 CRUD 操作
+---
 
-- 正常系: 作成・取得・更新・削除が期待通り動作する
-- 異常系: バリデーションエラー、存在しない ID へのアクセス、重複制約違反
+## 2. テスト構成
 
-### 3.3 Auth フロー
+| レイヤー | テスト種別 | ツール | 対象 |
+|---------|-----------|--------|------|
+| 単体 | Unit Test | Vitest | バリデーション、ユーティリティ、型 |
+| API | Integration Test | Vitest + 実DB | API Routes (`/api/*`) |
+| DB/RLS | Integration Test | Vitest + 実DB | RLSポリシー、トリガー |
+| E2E | End-to-End | Playwright | ブラウザ操作フロー |
 
-- サインアップ / サインイン / サインアウト
-- セッションの有効期限とリフレッシュ
-- パスワードリセット（必要に応じて）
+---
 
-## 4. テストデータ管理
+## 3. API 統合テスト (`tests/api/`)
 
-- `supabase/seed.sql` にテスト用ユーザーや fixture データを定義する。
-- テスト毎に `db reset` でクリーンな状態を再現する。
-- テスト内で動的に作成したデータは、テスト終了時に削除するか、reset に委ねる。
+### `loglines.test.ts`
 
-## 5. CI 連携
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 1 | 正常投稿 | 140文字以内のログラインがDBに保存され、IDが返る |
+| 2 | 空文字投稿 | 400エラー、DBにレコードが増えない |
+| 3 | 141文字投稿 | 400エラー、バリデーション拒否 |
+| 4 | SQLインジェクション | `content` に `'; DROP TABLE...` 含めても無害化/拒否される |
 
-```yaml
-# 例: GitHub Actions
-- name: Start Supabase
-  run: npx supabase start
-- name: Run DB tests
-  run: npx supabase test db
-- name: Run integration tests
-  run: npx vitest run
-```
+### `comments.test.ts`
 
-## 6. 導入手順（本プロジェクト）
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 5 | 正常コメント | コメント保存 + `loglines.comment_count` が+1される |
+| 6 | 空コメント | 400エラー |
+| 7 | 5001文字コメント | 400エラー |
+| 8 | 存在しないloglineId | 500またはFKエラー |
 
-1. `npm install -D supabase` で CLI を導入
-2. `supabase/config.toml` でローカル環境を設定
-3. `.env.test` を作成し、`SUPABASE_URL=http://localhost:54321` 等を設定
-4. `__tests__/supabase.integration.test.ts` を作成して RLS + CRUD テストを記述
-5. `package.json` にテスト用スクリプトを追加:
-   ```json
-   "test:db": "supabase test db",
-   "test:integration": "vitest run __tests__/supabase.integration.test.ts"
-   ```
+### `share.test.ts`
 
-## 7. 命名規則
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 9 | 正常シェアカウント | `share_count` が+1される |
+| 10 | 存在しないID | 500エラー |
 
-- テストファイル: `{対象}.test.ts` または `{対象}.spec.ts`
-- テストケース: `【状況】を【操作】すると【結果】になる` の形式で記述
+### `admin.test.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 11 | 未認証で削除 | 401エラー、レコードが残る |
+| 12 | 未認証でカテゴリ更新 | 401エラー |
+| 13 | 認証後の削除 | 200、レコードが消える |
+| 14 | 認証後のコメント削除 | `comment_count` が-1される |
+| 15 | 認証後のカテゴリ更新 | `category` が更新される |
+
+---
+
+## 4. データ層テスト (`tests/lib/`)
+
+### `data.test.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 16 | 人気順取得 | `share_count` DESC で並ぶ |
+| 17 | 新着順取得 | `created_at` DESC で並ぶ |
+| 18 | 検索（部分一致） | `ilike` で期待のレコードが返る |
+| 19 | 検索（該当なし） | 空配列 |
+| 20 | 存在しないID取得 | `null` が返る |
+| 21 | コメント取得 | `created_at` ASC で並ぶ |
+
+---
+
+## 5. DB スキーマ・RLS テスト (`tests/db/`)
+
+### `rls.test.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 22 | 匿名SELECT許可 | `loglines` / `comments` が読める |
+| 23 | 匿名INSERT許可 | 認証なしで書き込める |
+| 24 | 匿名UPDATE拒否 | 匿名で `UPDATE` すると0件 |
+| 25 | 匿名DELETE拒否 | 匿名で `DELETE` すると0件 |
+| 26 | 認証ユーザーのUPDATE/DELETE許可 | `service_role` / ログイン済みで成功 |
+
+### `schema.test.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 27 | 文字数制約（DBレベル） | 141文字INSERTでDBエラー |
+| 28 | トリガー動作 | `UPDATE` で `updated_at` が変わる |
+| 29 | CASCADE削除 | `loglines` 削除で紐付く `comments` も消える |
+
+---
+
+## 6. E2E テスト (`e2e/`)
+
+### `post-logline.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 30 | ログライン投稿フロー | フォーム入力 → 投稿 → 一覧に表示 |
+| 31 | 140文字カウンタ | 残り文字数が赤くなる、投稿ボタン制御 |
+
+### `comment.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 32 | コメント投稿フロー | 詳細ページでコメント → 即座に表示 |
+
+### `search.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 33 | 検索フロー | キーワード入力 → 絞り込み結果 |
+
+### `sort.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 34 | ソート切り替え | 人気順 ↔ 新着順で順序が変わる |
+
+### `share.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 35 | シェアボタン | クリック → カウント+1 → トースト表示 |
+
+### `admin.spec.ts`
+
+| # | ケース名 | 検証内容 |
+|---|---------|---------|
+| 36 | 管理者ログイン〜削除 | ログイン → 管理画面 → 削除実行 |
+
+---
+
+## 7. 実装優先度
+
+1. **API統合テスト**（`tests/api/`）— 最優先
+2. **DB/RLSテスト**（`tests/db/`）— セキュリティ担保のため優先
+3. **データ層テスト**（`tests/lib/`）— 並行して実装可能
+4. **E2Eテスト**（`e2e/`）— UIフロー確定後に実装

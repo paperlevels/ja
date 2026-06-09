@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { MessageSquarePlus } from "lucide-react";
+import type { Comment } from "@/types/database";
 
 interface CommentFormProps {
   loglineId: string;
+  onSuccess?: (comment: Comment) => void;
 }
 
-export function CommentForm({ loglineId }: CommentFormProps) {
+export function CommentForm({ loglineId, onSuccess }: CommentFormProps) {
   const [content, setContent] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -34,7 +36,9 @@ export function CommentForm({ loglineId }: CommentFormProps) {
 
       toast.success("コメントを投稿しました");
       setContent("");
-      window.location.reload();
+      if (result.comment && onSuccess) {
+        onSuccess(result.comment);
+      }
     } catch {
       toast.error("コメント投稿に失敗しました");
     } finally {
