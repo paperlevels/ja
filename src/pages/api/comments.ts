@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -44,7 +45,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const { data: current } = await supabase
+    const admin = createAdminClient();
+    const { data: current } = await admin
       .schema("public")
       .from("loglines")
       .select("comment_count")
@@ -52,7 +54,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .single();
 
     if (current) {
-      await supabase
+      await admin
         .schema("public")
         .from("loglines")
         .update({ comment_count: current.comment_count + 1 })

@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
     const { id } = body;
@@ -13,11 +13,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const supabase = createClient(request, {
-      get: (name) => cookies.get(name)?.value,
-      set: (name, value, options) => cookies.set(name, value, options),
-      delete: (name, options) => cookies.delete(name, options),
-    });
+    const supabase = createAdminClient();
 
     const { data: current, error: fetchError } = await supabase
       .schema("public")
