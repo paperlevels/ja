@@ -4,8 +4,8 @@ compatibility_date = "2026-06-08"
 [vars]
 # クライアントサイドで使用する環境変数（PUBLIC_ プレフィックス必須）
 # ビルド時に .env.local または CI の環境変数から読み込まれます
-# PUBLIC_SUPABASE_URL = "https://your-project.supabase.co"
-# PUBLIC_SUPABASE_ANON_KEY = "your-anon-key"
+PUBLIC_SUPABASE_URL = "https://oyhlbkbezyntolfvbwar.supabase.co"
+PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95aGxia2JlenludG9sZnZid2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5OTMzMDgsImV4cCI6MjA5NjU2OTMwOH0.byElBI5siOJQaQ5Lyp2sKi5-kQtN3uJW1v0E0ePUHGM"
 
 # サーバーサイドでのみ使用する機密情報は wrangler secret を使用してください
 # wrangler secret put SUPABASE_SERVICE_ROLE_KEY
