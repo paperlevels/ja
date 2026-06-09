@@ -19,7 +19,7 @@ export function LoglineCard({ logline, highlight }: LoglineCardProps) {
     <a href={`/p/${encodeURIComponent(logline.id)}`} className="group block">
       <article className={`relative rounded-xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-0.5 hover:border-border ${highlight ? "animate-glow-fade" : ""}`}>
         <div className="flex items-start justify-between gap-4">
-          <p className="text-2xl font-semibold leading-relaxed text-foreground group-hover:text-primary transition-colors">
+          <p className="text-[23px] font-semibold leading-relaxed text-foreground group-hover:text-primary transition-colors">
             {logline.content}
           </p>
           <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground/0 transition-all group-hover:text-muted-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
