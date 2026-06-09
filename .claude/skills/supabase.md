@@ -4,11 +4,11 @@ This project uses Supabase for database, authentication, and real-time subscript
 
 ## Clients
 
-Three Supabase clients are configured:
+Three Supabase clients are configured under `src/lib/supabase/`:
 
-1. **Browser Client** (`lib/supabase/client.ts`): For Client Components using `@supabase/ssr`
-2. **Server Client** (`lib/supabase/server.ts`): For Server Components using `@supabase/ssr`
-3. **Admin Client** (`lib/supabase/admin.ts`): For Server Actions requiring elevated privileges using `@supabase/supabase-js` with service role key
+1. **Browser Client** (`src/lib/supabase/client.ts`): For React island components using `@supabase/ssr`
+2. **Server Client** (`src/lib/supabase/server.ts`): For Astro server-side code using `@supabase/ssr` with a custom cookie adapter
+3. **Admin Client** (`src/lib/supabase/admin.ts`): For API routes requiring elevated privileges using `@supabase/supabase-js` with service role key
 
 ## Database Schema
 
@@ -27,7 +27,7 @@ Key tables:
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+PUBLIC_SUPABASE_URL=
+PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```

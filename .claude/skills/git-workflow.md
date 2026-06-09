@@ -2,10 +2,10 @@
 
 ## Commit Policy
 
-### Always commit & push
+### Always commit
 
-- Source code changes (`app/`, `components/`, `lib/`, `types/`)
-- Configuration changes (`next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, etc.)
+- Source code changes (`src/`, `components/`, `lib/`, `types/`)
+- Configuration changes (`astro.config.mjs`, `tsconfig.json`, `eslint.config.mjs`, etc.)
 - Dependency changes (`package.json`, `package-lock.json`)
 - Database schema (`supabase/schema.sql`)
 - Agent configurations (`.claude/`, `.kimi/`, `.agents/`, `.mcp.json`, `.claudeignore`)
@@ -13,7 +13,7 @@
 ### Never commit
 
 - `.env*` files (contain secrets)
-- Build outputs (`.next/`, `out/`, `build/`)
+- Build outputs (`.astro/`, `dist/`, `build/`)
 - `node_modules/`
 - `*.tsbuildinfo`
 

@@ -1,3 +1,3 @@
 {
-  "customInstructions": "This project uses Next.js 16 App Router, TypeScript, Tailwind CSS, shadcn/ui, and Supabase. Follow the existing code style."
+  "customInstructions": "This project uses Astro 6, TypeScript, Tailwind CSS v4, shadcn/ui, Supabase, and Cloudflare Workers. Follow the existing code style."
 }

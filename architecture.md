@@ -8,56 +8,59 @@ Paperlevels is a PoC (Proof of Concept) site where users can post loglines (one-
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 16 (App Router) |
+| Framework | Astro 6 |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
+| Styling | Tailwind CSS v4 |
 | UI Components | shadcn/ui |
-| Backend | Next.js Server Actions + Supabase |
+| Backend | Astro API Routes + Supabase |
 | Database | Supabase PostgreSQL |
 | Auth | Supabase Auth (admin only) |
-| Hosting | Vercel |
+| Hosting | Cloudflare Workers |
 | OGP Preview | microlink.io |
 
 ## Project Structure
 
 ```
-app/
-  layout.tsx              # Root layout with Header/Footer
-  page.tsx                # Home page (hero, post form, logline list)
-  globals.css             # Tailwind CSS theme
-  about/
-    page.tsx              # About page
-  admin/
-    layout.tsx            # Admin layout (no auth redirect)
-    page.tsx              # Admin dashboard
-    login/
-      page.tsx            # Admin login page
-  p/[id]/
-    page.tsx              # Logline detail page
-
-components/
-  layout/
-    Header.tsx
-    Footer.tsx
-  loglines/
-    LoglineCard.tsx
-    LoglineForm.tsx
-    ShareButton.tsx
-  comments/
-    CommentForm.tsx
-    CommentList.tsx
-    MarkdownRenderer.tsx
-    OgpPreview.tsx
-  ui/                     # shadcn/ui components
-
-lib/
-  actions.ts              # Server Actions
-  data.ts                 # Data fetching helpers
-  supabase/
-    client.ts             # Browser Supabase client
-    server.ts             # Server Supabase client
-    admin.ts              # Admin Supabase client (service role)
-    middleware.ts         # Session update helper
+src/
+  pages/
+    index.astro           # Home page (hero, post form, logline list)
+    p/[id].astro          # Logline detail page
+    about.astro           # About page
+    admin.astro           # Admin dashboard
+    admin/login.astro     # Admin login page
+    api/                  # API routes (replacing Server Actions)
+      loglines.ts
+      comments.ts
+      share.ts
+      admin/
+        delete-logline.ts
+        delete-comment.ts
+        update-category.ts
+  layouts/
+    Layout.astro          # Root layout with Header/Footer
+  components/             # React island components
+    layout/
+      Header.tsx
+      Footer.tsx
+    loglines/
+      LoglineCard.tsx
+      LoglineForm.tsx
+      ShareButton.tsx
+    comments/
+      CommentForm.tsx
+      CommentList.tsx
+      MarkdownRenderer.tsx
+      OgpPreview.tsx
+    ui/                   # shadcn/ui components
+  lib/
+    data.ts               # Data fetching helpers
+    utils.ts              # Utility functions
+    supabase/
+      client.ts           # Browser Supabase client
+      server.ts           # Server Supabase client
+      admin.ts            # Admin Supabase client (service role)
+  styles/
+    global.css            # Tailwind CSS theme
 
 supabase/
   schema.sql              # Database schema
@@ -100,7 +103,7 @@ Logline (1) ───< Comment (N)
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+PUBLIC_SUPABASE_URL=
+PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```

@@ -24,10 +24,10 @@ npx shadcn@latest add <component-name>
 
 ## Styling
 
-Components are styled with Tailwind CSS. The theme colors are customized in `app/globals.css`.
+Components are styled with Tailwind CSS v4. The theme colors are customized in `src/styles/global.css` using CSS custom properties under the `@theme` block.
 
 Key colors:
-- Primary: `#0EA5E9` (Sky Blue)
-- Background: `#FFFFFF`
-- Card: `#F8FAFC`
-- Text: `#0F172A`
+- Primary: `hsl(240 5.9% 10%)`
+- Background: `hsl(0 0% 100%)`
+- Card: `hsl(0 0% 100%)`
+- Text: `hsl(240 10% 3.9%)`

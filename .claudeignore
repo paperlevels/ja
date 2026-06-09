@@ -3,9 +3,12 @@ node_modules
 .pnp
 .pnp.*
 
-# Next.js
-.next/
-out/
+# Astro
+.astro/
+dist/
+
+# Cloudflare
+.wrangler/
 
 # Production
 /build
@@ -20,12 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Vercel
-.vercel
-
 # TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
 # IDE
 .vscode
