@@ -39,3 +39,11 @@ Examples:
 ## Push
 
 Push directly to `main` branch unless otherwise instructed.
+
+If the user asks to "direct push" or says they do not want the extra PR step, follow that instruction:
+
+- commit the intended changes
+- push the branch directly
+- do not open a pull request unless the user explicitly asks for one
+
+Prefer the shortest publish flow that satisfies the user's request.
