@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { jsonResponse } from "@/lib/api-response";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -8,16 +9,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { loglineId, content } = body;
 
     if (!loglineId) {
-      return new Response(
-        JSON.stringify({ error: "ログラインIDが必要です" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "ログラインIDが必要です" }, { status: 400 });
     }
 
     if (!content || content.trim().length === 0 || content.trim().length > 5000) {
-      return new Response(
-        JSON.stringify({ error: "コメントは1〜5000文字で入力してください" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+      return jsonResponse(
+        { error: "コメントは1〜5000文字で入力してください" },
+        { status: 400 }
       );
     }
 
@@ -39,10 +37,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (error) {
       console.error("Error creating comment:", error);
-      return new Response(
-        JSON.stringify({ error: "コメント投稿に失敗しました" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "コメント投稿に失敗しました" }, { status: 500 });
     }
 
     const admin = createAdminClient();
@@ -61,15 +56,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         .eq("id", loglineId);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, comment }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true, comment });
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "コメント投稿に失敗しました" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "コメント投稿に失敗しました" }, { status: 500 });
   }
 };

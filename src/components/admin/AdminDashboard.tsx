@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Logline, Comment } from "@/types/database";
 import {
   Table,
@@ -25,6 +25,11 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ loglines: initialLoglines, comments: initialComments }: AdminDashboardProps) {
   const [loglines, setLoglines] = useState(initialLoglines);
   const [comments, setComments] = useState(initialComments);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   async function handleDeleteLogline(id: string) {
     const res = await fetch("/api/admin/delete-logline", {
@@ -79,7 +84,7 @@ export default function AdminDashboard({ loglines: initialLoglines, comments: in
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div data-hydrated={hydrated ? "true" : "false"} className="flex flex-col gap-10">
       {/* Loglines */}
       <section>
         <h2 className="text-lg font-semibold tracking-tight mb-4">

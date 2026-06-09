@@ -1,0 +1,48 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  ogType?: "website" | "article";
+  ogImage?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  ogType = "website",
+  ogImage = "/ogp-default.png",
+  canonicalPath,
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonicalUrl = new URL(canonicalPath ?? Astro.url.pathname, site).toString();
+const ogImageUrl = new URL(ogImage, site).toString();
+const jsonLdContent = jsonLd ? JSON.stringify(jsonLd) : null;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:site_name" content="Paperlevels" />
+<meta property="og:locale" content="ja_JP" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+{jsonLdContent && (
+  <script type="application/ld+json" set:html={jsonLdContent} />
+)}

@@ -7,11 +7,43 @@ import { getLoglines } from "@/lib/data";
 
 const sort = Astro.url.searchParams.get("sort") === "popular" ? "popular" : "newest";
 const search = Astro.url.searchParams.get("q") || "";
+const site = Astro.site ?? new URL(Astro.url.origin);
 
 const loglines = await getLoglines(sort, search);
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Paperlevels",
+  url: site.toString(),
+  description: "1文から始まる物語。ログラインを投稿して、読者の反応を測ろう。",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${site.origin}/?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: site.toString(),
+    },
+  ],
+};
 ---
 
-<Layout>
+<Layout
+  title="Paperlevels - ログラインで需要を測る"
+  description="1文から始まる物語。ログラインを投稿して、読者の反応を測ろう。"
+  canonicalPath="/"
+  jsonLd={[websiteJsonLd, breadcrumbJsonLd]}
+>
   <div class="mx-auto max-w-2xl px-4 py-12 md:py-16">
     <!-- Hero -->
     <section class="mb-12 text-center">

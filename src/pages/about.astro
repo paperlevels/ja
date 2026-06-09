@@ -1,10 +1,67 @@
 ---
 export const prerender = false;
-import Layout from "@/layouts/Layout.astro";
----
-export const prerender = false;
 
-<Layout title="About - Paperlevels" description="Paperlevelsについて">
+import Layout from "@/layouts/Layout.astro";
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: site.toString(),
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "About",
+      item: new URL("/about", site).toString(),
+    },
+  ],
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Paperlevels とは何ですか？",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "AIエージェント時代にアイデアが先行しがちな状況で、ログラインを通じてその需要を早期に検証するPoCサイトです。",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "シェア数は正確な投稿数ですか？",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "表示されているシェア数は、シェアボタンのクリック数をカウントしたものです。正確なSNS投稿数ではありません。",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "コメントは編集できますか？",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "コメントは追記専用です。元のログラインに対する補足・背景・関連情報を書き込むことができますが、ユーザー側からの編集・削除はできません。",
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title="About｜Paperlevels"
+  description="Paperlevelsとは、1文から始まる物語の実験場です。"
+  canonicalPath="/about"
+  jsonLd={[breadcrumbJsonLd, faqJsonLd]}
+>
   <div class="mx-auto max-w-2xl px-4 py-12 md:py-16">
     <div class="mb-10 text-center">
       <h1 class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -33,6 +90,41 @@ export const prerender = false;
         <p class="text-[15px] leading-relaxed text-muted-foreground">
           最小限の入力（ログライン一文）で、最大限のフィードバック（シェア数＋コメント）を得られる場所を目指しています。
         </p>
+      </section>
+
+      <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm">
+        <h2 class="text-lg font-semibold tracking-tight mb-4">
+          よくある質問
+        </h2>
+        <div class="space-y-5">
+          <div>
+            <h3 class="text-sm font-semibold text-foreground">
+              Paperlevels とは何ですか？
+            </h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              AIエージェント時代にアイデアが先行しがちな状況で、
+              ログラインを通じてその需要を早期に検証するPoCサイトです。
+            </p>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-foreground">
+              シェア数は正確な投稿数ですか？
+            </h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              表示されているシェア数は、シェアボタンのクリック数をカウントしたものです。
+              正確なSNS投稿数ではありません。
+            </p>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-foreground">
+              コメントは編集できますか？
+            </h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              コメントは追記専用です。元のログラインに対する補足・背景・関連情報を書き込むことができますが、
+              ユーザー側からの編集・削除はできません。
+            </p>
+          </div>
+        </div>
       </section>
 
       <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm">

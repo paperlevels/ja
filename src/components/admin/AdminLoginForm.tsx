@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,12 @@ export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +55,7 @@ export default function AdminLoginForm() {
 
       <form
         onSubmit={handleSubmit}
+        data-hydrated={hydrated ? "true" : "false"}
         className="rounded-xl border border-border/60 bg-card p-6 shadow-sm space-y-4"
       >
         <div className="space-y-2">

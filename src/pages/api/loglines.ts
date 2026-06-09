@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { jsonResponse } from "@/lib/api-response";
 import { createClient } from "@/lib/supabase/server";
 
 const FORBIDDEN_CHARS = /[\/\\?&\#%\n\r\t]/;
@@ -21,10 +22,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const validationError = validateContent(content);
     if (validationError) {
-      return new Response(
-        JSON.stringify({ error: validationError }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: validationError }, { status: 400 });
     }
 
     const trimmed = content.trim();
@@ -43,9 +41,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .single();
 
     if (existing) {
-      return new Response(
-        JSON.stringify({ error: "同じ内容は既に投稿されています" }),
-        { status: 409, headers: { "Content-Type": "application/json" } }
+      return jsonResponse(
+        { error: "同じ内容は既に投稿されています" },
+        { status: 409 }
       );
     }
 
@@ -58,21 +56,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (error) {
       console.error("Error creating logline:", error);
-      return new Response(
-        JSON.stringify({ error: "投稿に失敗しました" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "投稿に失敗しました" }, { status: 500 });
     }
 
-    return new Response(
-      JSON.stringify({ success: true, logline: data }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true, logline: data });
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "投稿に失敗しました" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "投稿に失敗しました" }, { status: 500 });
   }
 };

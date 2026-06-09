@@ -27,8 +27,77 @@ const timeAgo = formatDistanceToNow(new Date(logline.created_at), {
   addSuffix: true,
   locale: ja,
 });
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonicalPath = `/p/${logline.id}`;
+const canonicalUrl = new URL(canonicalPath, site).toString();
+const categoryName = logline.category ?? "未分類";
+const headline = Array.from(logline.content).slice(0, 110).join("");
+
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline,
+  description: `${categoryName}のログライン。${comments.length}件のコメント。`,
+  url: canonicalUrl,
+  datePublished: logline.created_at,
+  dateModified: logline.updated_at,
+  author: {
+    "@type": "Organization",
+    name: "Paperlevels",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Paperlevels",
+    logo: {
+      "@type": "ImageObject",
+      url: new URL("/logo.png", site).toString(),
+    },
+  },
+  interactionStatistic: [
+    {
+      "@type": "InteractionCounter",
+      interactionType: {
+        "@type": "ShareAction",
+      },
+      userInteractionCount: logline.share_count,
+    },
+    {
+      "@type": "InteractionCounter",
+      interactionType: {
+        "@type": "CommentAction",
+      },
+      userInteractionCount: comments.length,
+    },
+  ],
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: site.toString(),
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: headline,
+      item: canonicalUrl,
+    },
+  ],
+};
 ---
-<Layout title={`${logline.content} — Paperlevels`}>
+<Layout
+  title={`${logline.content}｜Paperlevels`}
+  description={`${categoryName}のログライン。${comments.length}件のコメント・${logline.share_count}回のシェア。`}
+  canonicalPath={canonicalPath}
+  ogType="article"
+  jsonLd={[articleJsonLd, breadcrumbJsonLd]}
+>
   <div class="mx-auto max-w-2xl px-4 py-8 md:py-12">
     <!-- Back Link -->
     <a

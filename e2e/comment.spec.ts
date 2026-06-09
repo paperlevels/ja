@@ -17,7 +17,15 @@ test.describe("コメント投稿", () => {
     await page
       .getByPlaceholder("コメントを入力（Markdown対応）")
       .fill(commentText);
-    await page.getByRole("button", { name: "コメントする" }).click();
+    await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/comments") &&
+          res.request().method() === "POST" &&
+          res.status() === 200
+      ),
+      page.getByRole("button", { name: "コメントする" }).click(),
+    ]);
 
     await expect(page.getByText("コメントを投稿しました")).toBeVisible();
     await expect(page.getByText(commentText)).toBeVisible();

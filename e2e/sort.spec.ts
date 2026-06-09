@@ -37,6 +37,7 @@ test.describe("ソート切り替え", () => {
 
     // Newest sort: B should appear before A (B posted later)
     await page.getByRole("link", { name: "新着順" }).click();
+    await page.waitForURL(/sort=newest/);
     await expect(page).toHaveURL(/sort=newest/);
     const newestOrder = await page.locator("article").evaluateAll((nodes) =>
       nodes.map((node) => node.textContent || "")

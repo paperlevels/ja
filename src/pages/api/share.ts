@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { jsonResponse } from "@/lib/api-response";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -7,10 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { id } = body;
 
     if (!id) {
-      return new Response(
-        JSON.stringify({ error: "IDが必要です" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "IDが必要です" }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -24,10 +22,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (fetchError || !current) {
       console.error("Error fetching share count:", fetchError);
-      return new Response(
-        JSON.stringify({ error: "カウントに失敗しました" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "カウントに失敗しました" }, { status: 500 });
     }
 
     const { error } = await supabase
@@ -38,21 +33,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) {
       console.error("Error incrementing share count:", error);
-      return new Response(
-        JSON.stringify({ error: "カウントに失敗しました" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "カウントに失敗しました" }, { status: 500 });
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true });
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "カウントに失敗しました" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "カウントに失敗しました" }, { status: 500 });
   }
 };

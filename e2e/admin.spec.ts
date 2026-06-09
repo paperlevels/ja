@@ -23,32 +23,40 @@ test.describe("管理者機能", () => {
     // Navigate to admin login
     await page.goto("/admin/login");
     await expect(page.getByRole("heading", { name: "管理者ログイン" })).toBeVisible();
+    await expect(page.locator('form[data-hydrated="true"]')).toBeVisible();
 
     // Login
     const emailInput = page.locator("input#email");
     const passwordInput = page.locator("input#password");
-    // Wait for React hydration to finish before interacting with controlled inputs
-    await expect(emailInput).toBeEditable();
     await emailInput.click();
     await emailInput.fill(ADMIN_EMAIL!);
     await passwordInput.click();
     await passwordInput.fill(ADMIN_PASSWORD!);
     await page.getByRole("button", { name: "ログイン" }).click();
-
-    await page.waitForURL(/\/admin$/);
-    // Wait for the React dashboard to fully hydrate before interacting
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { name: "管理画面" })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.locator('div[data-hydrated="true"]')).toBeVisible({
+      timeout: 10000,
+    });
 
     // Verify the logline appears in the table
-    await expect(page.locator("table").filter({ hasText: content })).toBeVisible();
+    const row = page.locator("table tbody tr").filter({ hasText: content });
+    await expect(row).toBeVisible({ timeout: 10000 });
 
     // Delete the logline
-    const row = page.locator("table tbody tr").filter({ hasText: content });
     const deleteButton = row.getByRole("button", { name: "削除" }).first();
     await expect(deleteButton).toBeEnabled();
-    await deleteButton.click();
+    await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes("/api/admin/delete-logline") &&
+          res.request().method() === "POST" &&
+          res.status() === 200
+      ),
+      deleteButton.click(),
+    ]);
 
-    await expect(page.getByText("削除しました")).toBeVisible();
-    await expect(page.locator("table").filter({ hasText: content })).not.toBeVisible();
+    await expect(row).toHaveCount(0);
   });
 });

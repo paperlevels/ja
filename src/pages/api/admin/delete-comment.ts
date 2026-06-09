@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { jsonResponse } from "@/lib/api-response";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -15,10 +16,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     } = await authClient.auth.getUser();
 
     if (!user) {
-      return new Response(
-        JSON.stringify({ error: "認証が必要です" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "認証が必要です" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -29,10 +27,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (error) {
       console.error("Error deleting comment:", error);
-      return new Response(
-        JSON.stringify({ error: "削除に失敗しました" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      return jsonResponse({ error: "削除に失敗しました" }, { status: 500 });
     }
 
     const { data: current } = await supabase
@@ -50,15 +45,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         .eq("id", loglineId);
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true });
   } catch (e) {
     console.error(e);
-    return new Response(
-      JSON.stringify({ error: "削除に失敗しました" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: "削除に失敗しました" }, { status: 500 });
   }
 };
