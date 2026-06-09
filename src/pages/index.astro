@@ -2,8 +2,7 @@
 export const prerender = false;
 
 import Layout from "@/layouts/Layout.astro";
-import { LoglineForm } from "@/components/loglines/LoglineForm";
-import { LoglineCard } from "@/components/loglines/LoglineCard";
+import { LoglineFeed } from "@/components/loglines/LoglineFeed";
 import { getLoglines } from "@/lib/data";
 
 const sort = Astro.url.searchParams.get("sort") === "popular" ? "popular" : "newest";
@@ -26,51 +25,6 @@ const loglines = await getLoglines(sort, search);
       </p>
     </section>
 
-    <!-- Post Form -->
-    <section class="mb-10">
-      <LoglineForm client:load />
-    </section>
-
-    <!-- Sort Tabs -->
-    <div class="mb-6 flex items-center gap-1 rounded-full bg-secondary p-1 w-fit">
-      <a
-        href={`?${search ? `q=${encodeURIComponent(search)}&` : ""}sort=popular`}
-        class={`inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-          sort === "popular"
-            ? "bg-card text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        }`}
-      >
-        人気順
-      </a>
-      <a
-        href={`?${search ? `q=${encodeURIComponent(search)}&` : ""}sort=newest`}
-        class={`inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-          sort === "newest"
-            ? "bg-card text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        }`}
-      >
-        新着順
-      </a>
-    </div>
-
-    <!-- List -->
-    <div class="flex flex-col gap-3">
-      {loglines.length === 0 ? (
-        <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
-          <p class="text-sm text-muted-foreground">
-            まだ投稿がありません
-          </p>
-          <p class="mt-1 text-xs text-muted-foreground/60">
-            最初のログラインを投稿してみましょう
-          </p>
-        </div>
-      ) : (
-        loglines.map((logline) => (
-          <LoglineCard logline={logline} />
-        ))
-      )}
-    </div>
+    <LoglineFeed client:load initialLoglines={loglines} sort={sort} search={search} />
   </div>
 </Layout>

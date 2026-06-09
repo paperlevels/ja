@@ -9,6 +9,7 @@ import { MessageCircle } from "lucide-react";
 
 interface CommentListProps {
   comments: Comment[];
+  highlightId?: string | null;
 }
 
 function extractUrls(text: string): string[] {
@@ -17,7 +18,7 @@ function extractUrls(text: string): string[] {
   return Array.from(new Set(matches));
 }
 
-export function CommentList({ comments }: CommentListProps) {
+export function CommentList({ comments, highlightId }: CommentListProps) {
   if (comments.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
@@ -36,10 +37,11 @@ export function CommentList({ comments }: CommentListProps) {
     <div className="flex flex-col gap-3">
       {comments.map((comment) => {
         const urls = extractUrls(comment.content);
+        const isHighlight = comment.id === highlightId;
         return (
           <div
             key={comment.id}
-            className="rounded-xl border border-border/60 bg-card p-5 shadow-sm"
+            className={`rounded-xl border border-border/60 bg-card p-5 shadow-sm ${isHighlight ? "animate-glow-fade" : ""}`}
           >
             <div className="mb-3 flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">

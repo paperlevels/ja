@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
+import type { Logline } from "@/types/database";
 
 const FORBIDDEN_CHARS = /[\/\\?&\#%\n\r\t]/;
 
@@ -19,7 +20,11 @@ function getValidationError(text: string): string | null {
   return null;
 }
 
-export function LoglineForm() {
+interface LoglineFormProps {
+  onSuccess?: (logline: Logline) => void;
+}
+
+export function LoglineForm({ onSuccess }: LoglineFormProps) {
   const [content, setContent] = useState("");
   const [pending, setPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -41,7 +46,7 @@ export function LoglineForm() {
 
       toast.success("投稿しました！");
       setContent("");
-      window.location.href = "/p/" + encodeURIComponent(result.id);
+      onSuccess?.(result.logline);
     } catch {
       toast.error("投稿に失敗しました");
     } finally {
