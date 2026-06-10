@@ -24,8 +24,15 @@ export function ShareButton({ id, content, initialCount }: ShareButtonProps) {
     setLastClicked(now);
 
     const url = `${typeof window !== "undefined" ? window.location.origin : ""}/p/${encodeURIComponent(id)}`;
-    const text = `「${content}」 — このアイデア、需要ある？ #Paperlevels`;
-    const shareData = { title: "Paperlevels", text, url };
+    
+    // ポスト本文（URLは含めない）
+    const text = `「${content}」ってあったら便利ですか？
+#paperlevels`;
+
+    const shareData = { 
+      title: "Paperlevels", 
+      text 
+    };
 
     if (navigator.share) {
       try {
@@ -34,9 +41,8 @@ export function ShareButton({ id, content, initialCount }: ShareButtonProps) {
         // user cancelled
       }
     } else {
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        text
-      )}&url=${encodeURIComponent(url)}`;
+      // Twitter(X)共有時もURLを含めない
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
       window.open(twitterUrl, "_blank", "noopener,noreferrer");
     }
 
