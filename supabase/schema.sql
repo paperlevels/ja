@@ -25,7 +25,7 @@ CREATE TABLE loglines (
 CREATE TABLE comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   logline_id TEXT NOT NULL REFERENCES loglines(id) ON DELETE CASCADE,
-  content TEXT NOT NULL CHECK (char_length(content) >= 1 AND char_length(content) <= 5000),
+  content TEXT NOT NULL CHECK (char_length(content) >= 1 AND char_length(content) <= 10000),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
