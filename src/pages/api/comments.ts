@@ -12,9 +12,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return jsonResponse({ error: "ログラインIDが必要です" }, { status: 400 });
     }
 
-    if (!content || content.trim().length === 0 || content.trim().length > 5000) {
+    if (!content || content.trim().length === 0 || content.trim().length > 10000) {
       return jsonResponse(
-        { error: "コメントは1〜5000文字で入力してください" },
+        { error: "コメントは1〜10000文字で入力してください" },
         { status: 400 }
       );
     }

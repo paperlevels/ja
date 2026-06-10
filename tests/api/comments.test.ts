@@ -73,11 +73,11 @@ describe("POST /api/comments", () => {
 
     expect(response.status).toBe(400);
     const json = await response.json();
-    expect(json.error).toBe("コメントは1〜5000文字で入力してください");
+    expect(json.error).toBe("コメントは1〜10000文字で入力してください");
   });
 
-  it("5001文字コメント - 400エラー", async () => {
-    const longContent = "a".repeat(5001);
+  it("10001文字コメント - 400エラー", async () => {
+    const longContent = "a".repeat(10001);
     const response = await invokeAPIRoute(postComment, {
       method: "POST",
       body: JSON.stringify({ loglineId, content: longContent }),
@@ -86,7 +86,7 @@ describe("POST /api/comments", () => {
 
     expect(response.status).toBe(400);
     const json = await response.json();
-    expect(json.error).toBe("コメントは1〜5000文字で入力してください");
+    expect(json.error).toBe("コメントは1〜10000文字で入力してください");
   });
 
   it("loglineId 未指定 - 400エラー", async () => {

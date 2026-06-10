@@ -57,19 +57,19 @@ export function CommentForm({ loglineId, onSuccess }: CommentFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={4}
-        maxLength={5000}
+        maxLength={10000}
         required
         className="resize-none border-0 bg-transparent px-0 text-[15px] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
       />
       <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-3">
         <span
           className={`text-xs font-medium transition-colors ${
-            content.length >= 5000
+            content.length >= 10000
               ? "text-destructive"
               : "text-muted-foreground"
           }`}
         >
-          {content.length} / 5000
+          {content.length} / 10000
         </span>
         <Button
           type="submit"

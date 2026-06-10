@@ -129,7 +129,7 @@ AIエージェントの登場により、個人開発者やクリエイターが
 
 ```
 「{ログライン}」 — このアイデア、需要ある？ #Paperlevels
-https://paperlevels.app/p/{id}
+https://ja.paperlevels.workers.dev/p/{id}
 ```
 
 ### 5.4 コメント機能（追記専用）
